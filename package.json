@@ -1,0 +1,10 @@
+{
+    "name": "deardiary",
+    "version": "1.0.0",
+    "dependencies": {
+        "@material/card": "^0.39.1",
+        "express": "^4.13.4",
+        "express-mysql-session": "^2.0.1",
+        "mysql": "^2.10.2"
+    }
+}
