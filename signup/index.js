@@ -61,7 +61,7 @@ function validate() {
 }
 function insertUser() {
     var xhttp = new XMLHttpRequest();
-    var params = 'name=' + document.getElementById("fullname").value + '&email=' + document.getElementById("email").value + '&u_name=' + document.getElementById("u_name").value + '&password=' + document.getElementById("password").value + '&cpassword=' + document.getElementById("cpassword").value;
+    var params = 'name=' + document.getElementById("fullname").value + '&email=' + document.getElementById("email").value + '&u_name=' + document.getElementById("u_name").value + '&password=' + document.getElementById("password").value;
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             alert(JSON.parse(this.responseText).message)
