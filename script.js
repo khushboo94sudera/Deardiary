@@ -1,62 +1,7 @@
 var express = require('express');
 var mysql = require('mysql');
 
-//new code
-var bodyParser = require('body-parser');
-var sessions = require('express-session');
-var session;
-
-//new code ends
-
 var app = express();
-
-//new code
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use(sessions({
-    secret: '&^#*@WGKJR^#$WHGQ@Q#^^5556',
-    resave: false,
-    saveUninitialized: true
-}))
-
-
-app.get('/login', function (req, resp) {
-    session = req.session;
-    if (session.uniqueID) {
-        resp.redirect('/redirects');
-    }
-    resp.sendFile('/login/login.html', { root: __dirname });
-});
-
-app.post('/login', function (req, resp) {
-    //resp.end(JSON.stringyfy(req.body));
-    session = req.session;
-    if (session.uniqueID) {
-        resp.redirect('/redirects');
-    }
-    if (req.body.username == 'admin' && req.body.password == 'admin') {
-        session.uniqueID = req.body.username;
-    }
-    resp.redirect('/redirects');
-});
-
-app.get('/logout', function (req, resp) {
-    req.session.destroy();
-});
-
-app.get('/redirects', function (req, resp) {
-    session = req.session;
-    if (session.uniqueID) {
-        console.log(session.uniqueID);
-        resp.redirect('/admin');
-    } else {
-        resp.end('Who are you?? <a href="/logout">KILL SESSION</a>');
-    }
-});
-
-//new code ends
-
 
 var connection = mysql.createConnection({
     //properties...
@@ -73,6 +18,7 @@ connection.connect(function (error) {
         console.log("Connected");
     }
 });
+
 
 // Add headers
 app.use(function (req, res, next) {
@@ -95,7 +41,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(express.json());       // to support JSON-encoded bodies
-//app.use(express.urlencoded()); // to support URL-encoded bodies
+app.use(express.urlencoded()); // to support URL-encoded bodies
 
 app.post('/newUser', function (req, resp) {
     connection.query("INSERT INTO usertable (ID,name,email,u_name,password) values (NULL,'" + req.body.name + "','" + req.body.email + "','" + req.body.u_name + "','" + req.body.password + "')", function (error, rows, fields) {
@@ -115,5 +61,38 @@ app.post('/newUser', function (req, resp) {
     });
 })
 
+app.get('/login', function (req, resp) {
+    //resp.end(JSON.stringyfy(req.body));
+    //console.log(req.query.email);
+    connection.query("SELECT * from usertable WHERE email = '" + req.query.email + "' AND password = '" + req.query.password + "'", function (error, rows) {
+        if (error) {
+            console.log('Error in the query');
+            var object = {};
+            object.message = JSON.stringify(error);
+            // resp.send(rows);
+            resp.send(JSON.stringify(object));
+        } else {
+            if (rows.length > 0) {
+                var object = {};
+                object.message = "Successfully loggedin User " + req.query.email;
+                // resp.send(rows);
+                resp.send(JSON.stringify(object));
+                //resp.send(JSON.stringify(rows)); to print row data
+
+            } else {
+                var object = {};
+                object.message = "User doesnot exists " + req.query.email;
+                // resp.send(rows);
+                resp.send(JSON.stringify(object));
+            }
+
+        }
+    });
+})
+
+
+app.get('/logout', function (req, resp) {
+
+});
 
 app.listen(5000);
